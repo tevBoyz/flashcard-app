@@ -1,0 +1,43 @@
+<div
+  class="d-flex flex-column justify-content-center align-items-center vh-100"
+>
+  <div class="title">
+    <h1 class="text-center mt-5 titleC">Flashcards</h1>
+  </div>
+  <div
+    class="cards d-flex justify-content-around align-items-center vh-100 position-relative"
+  >
+    <div
+      class="flashcard-wrapper"
+      [class.flipped]="showAnswer"
+      [class.next]="animationClass === 'next'"
+      [class.prev]="animationClass === 'prev'"
+      (click)="toggleAnswer()"
+      (swipeleft)="nextCard()"
+      (swiperight)="prevCard()"
+    >
+      <div class="flashcard front">{{ currentCard.question }}</div>
+      <div class="flashcard back">{{ currentCard.answer }}</div>
+    </div>
+
+    <button
+      class="btn btn-outline-primary position-absolute start-0 m-3 prevv"
+      (click)="prevCard()"
+    >
+      ‹
+    </button>
+
+    <button
+      class="btn btn-outline-primary position-absolute end-0 m-3 nexxt"
+      (click)="nextCard()"
+    >
+      ›
+    </button>
+  </div>
+
+  <!-- Upload (UI only for now) -->
+  <div class="mb-5">
+    <h5>Upload Study Material (Coming Soon)</h5>
+    <input type="file" class="form-control" disabled />
+  </div>
+</div>
