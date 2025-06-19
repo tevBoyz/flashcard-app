@@ -31,11 +31,17 @@ export class FlashcardComponent {
           this.showAnswer = false;
           this.loading = false;
           this.showFlashPage = true;
-          console.log(this.flashcards)
+          //console.log(this.flashcards)
         },
         (err) => {
           console.error(err);
           this.loading = false;
+          if (err.status === 0) {
+          // Network error
+          alert('Connection failed. Please check your internet or server status.');
+        } else {
+          alert('An error occurred while uploading. Please try again.');
+        }
         }
       );
     } else {
