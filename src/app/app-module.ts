@@ -10,12 +10,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
-    App,
-    FlashcardComponent
-  ],
+    App
+    ],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    FlashcardComponent
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

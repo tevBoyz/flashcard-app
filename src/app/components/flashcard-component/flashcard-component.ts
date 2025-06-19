@@ -1,86 +1,71 @@
-import { Component, OnInit } from '@angular/core';
-import { Flashcard } from '../../models/flashcard.model';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FlashcardService } from '../../services/flashcard-service';
-import {
-  trigger,
-  style,
-  transition,
-  animate,
-  state
-} from '@angular/animations';
+import { Flashcard } from '../../models/flashcard.model';
 
 @Component({
-  selector: 'app-flashcard-component',
-  standalone: false,
+  selector: 'app-flashcard',
   templateUrl: './flashcard-component.html',
   styleUrls: ['./flashcard-component.scss'],
-  animations: [
-    trigger('slide', [
-      state('void', style({ opacity: 0, transform: 'translateX(0)' })),
-      transition(':enter', [
-        style({ opacity: 0, transform: '{{direction}}' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
-      ], { params: { direction: 'translateX(100%)' } }),
-      transition(':leave', [
-        animate('200ms ease-in', style({ opacity: 0, transform: '{{direction}}' }))
-      ], { params: { direction: 'translateX(-100%)' } })
-    ])
-  ]
+  standalone: true,
+  imports: [CommonModule]
 })
-export class FlashcardComponent implements OnInit {
+export class FlashcardComponent {
   flashcards: Flashcard[] = [];
-  currentIndex = 0;
-  showAnswer = false;
-  direction: 'next' | 'prev' = 'next';
+  currentIndex: number = 0;
+  showAnswer: boolean = false;
+  loading: boolean = false;
+  showFlashPage: boolean =false;
+  animationClass: 'next' | 'prev' | '' = '';
 
   constructor(private flashcardService: FlashcardService) {}
 
-  ngOnInit(): void {
-    this.flashcardService.getFlashcards().subscribe(data => {
-      this.flashcards = data;
-    });
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file && file.type === 'text/plain') {
+      this.loading = true;
+      this.flashcardService.uploadFile(file).subscribe(
+        (res) => {
+          this.flashcards = res.flashcards;
+          this.currentIndex = 0;
+          this.showAnswer = false;
+          this.loading = false;
+          this.showFlashPage = true;
+          console.log(this.flashcards)
+        },
+        (err) => {
+          console.error(err);
+          this.loading = false;
+        }
+      );
+    } else {
+      alert('Only .txt files are supported');
+    }
   }
 
-  get currentCard(): Flashcard {
-    return this.flashcards[this.currentIndex];
+  nextCard() {
+    this.animationClass = 'next';
+    setTimeout(() => {
+      this.currentIndex = (this.currentIndex + 1) % this.flashcards.length;
+      this.showAnswer = false;
+      this.animationClass = '';
+    }, 200);
   }
 
-  animationClass = '';
-
-nextCard(): void {
-  if (this.currentIndex < this.flashcards.length - 1) {
-    this.animateSlide('next');
-    this.currentIndex++;
-    this.showAnswer = false;
+  prevCard() {
+    this.animationClass = 'prev';
+    setTimeout(() => {
+      this.currentIndex = (this.currentIndex - 1 + this.flashcards.length) % this.flashcards.length;
+      this.showAnswer = false;
+      this.animationClass = '';
+    }, 200);
   }
-  else if (this.currentIndex == this.flashcards.length - 1) {
-    this.animateSlide('next');
-    this.currentIndex = 0; // Loop back to the first card
-    this.showAnswer = false;
-  }
-}
 
-prevCard(): void {
-  if (this.currentIndex > 0) {
-    this.animateSlide('prev');
-    this.currentIndex--;
-    this.showAnswer = false;
-  }
-  else if (this.currentIndex == 0) {
-    this.animateSlide('prev');
-    this.currentIndex = this.flashcards.length - 1; // Loop back to the last card
-    this.showAnswer = false;
-  }
-}
-
-animateSlide(direction: 'next' | 'prev'): void {
-  this.animationClass = ''; // Reset
-  void document.body.offsetWidth; // Force reflow
-  this.animationClass = direction; // Trigger animation
-}
-
-
-  toggleAnswer(): void {
+  toggleAnswer() {
     this.showAnswer = !this.showAnswer;
+  }
+
+  get currentCard() {
+    return this.flashcards[this.currentIndex];
   }
 }
